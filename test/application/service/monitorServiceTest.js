@@ -108,7 +108,7 @@ describe('MonitorService use case test', ()=> {
                 let mockMonitorRepository = {};
                 mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback)=> {
                     let monitor = createMonitorService().loadMonitor({
-                        id: "station-rain-other",
+                        monitorID: "station-rain-other",
                         dataType: 'rain',
                         rules: {
                             realTimePublish: {

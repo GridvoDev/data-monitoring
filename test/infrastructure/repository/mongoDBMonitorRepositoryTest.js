@@ -38,9 +38,9 @@ describe('mongoDBMonitorRepository use case test', ()=> {
                 });
             });
             it('should return monitor', done=> {
-                let id = "station-rain-other";
-                Repository.getMonitorByID(id, {}, (err, monitor)=> {
-                    monitor.id.should.be.eql("station-rain-other");
+                let monitorID = "station-rain-other";
+                Repository.getMonitorByID(monitorID, {}, (err, monitor)=> {
+                    monitor.monitorID.should.be.eql("station-rain-other");
                     done();
                 });
             });

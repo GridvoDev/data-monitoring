@@ -49,8 +49,8 @@ describe('Monitor use case test', ()=> {
                     value: 100
                 });
                 monitor.monitoringItems.lastPublishTimestamp.should.equal(1);
-                monitor.on(constant.EVENT.DATA_PUBLISH_NAME, (dataPublishEvent)=> {
-                    dataPublishEvent.name.should.equal(constant.EVENT.DATA_PUBLISH_NAME);
+                monitor.on(constant.EVENT.DATA_PUBLISH, (dataPublishEvent)=> {
+                    dataPublishEvent.name.should.equal(constant.EVENT.DATA_PUBLISH);
                     dataPublishEvent.dataSource.should.equal("station-rain-other");
                     monitor.monitoringItems.lastPublishTimestamp.should.equal(timestamp);
                     done();

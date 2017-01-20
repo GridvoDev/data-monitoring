@@ -24,7 +24,7 @@ describe('MonitorService use case test', ()=> {
                     id: "station-rain-other"
                 };
                 let monitor = service.initMonitor(dataSourceData);
-                monitor.id.should.equal("station-rain-other");
+                monitor.monitorID.should.equal("station-rain-other");
                 monitor.dataType.should.equal(constant.DATATYPE.RAIN);
                 should.exist(monitor.monitoringItems.lastPublishTimestamp);
                 should.exist(monitor.rules[constant.RULE.REAL_TIME_PUBLISH_RULE_ID]);
@@ -34,7 +34,7 @@ describe('MonitorService use case test', ()=> {
                     id: "station-waterlevel-shangqian"
                 };
                 let monitor = service.initMonitor(dataSourceData);
-                monitor.id.should.equal("station-waterlevel-shangqian");
+                monitor.monitorID.should.equal("station-waterlevel-shangqian");
                 monitor.dataType.should.equal(constant.DATATYPE.WATERLEVEL);
                 should.exist(monitor.monitoringItems.lastPublishTimestamp);
                 should.exist(monitor.rules[constant.RULE.REAL_TIME_PUBLISH_RULE_ID]);
@@ -44,7 +44,7 @@ describe('MonitorService use case test', ()=> {
             context('load monitor', ()=> {
                 it('load monitor ok', ()=> {
                     let monitorData = {
-                        id: "station-rain-other",
+                        monitorID: "station-rain-other",
                         dataType: 'rain',
                         rules: {
                             realTimePublish: {
@@ -59,7 +59,7 @@ describe('MonitorService use case test', ()=> {
                         }
                     };
                     let monitor = service.loadMonitor(monitorData);
-                    monitor.id.should.equal("station-rain-other");
+                    monitor.monitorID.should.equal("station-rain-other");
                     monitor.dataType.should.equal("rain");
                     monitor.monitoringItems.lastPublishTimestamp.should.equal(1);
                     should.exist(monitor.rules.realTimePublish);
