@@ -5,3 +5,6 @@ metadata:
 spec:
   selector:
     app: data-monitoring
+  ports:
+     - port: 80
+       targetPort: 3001
