@@ -6,24 +6,24 @@ const should = require('should');
 const muk = require('muk');
 const MessageConsumer = require('../../lib/kafka/messageConsumer');
 
-describe('messageConsumer() use case test', ()=> {
+describe('messageConsumer() use case test', () => {
     let messageConsumer;
     let client;
     let producer;
-    before(done=> {
+    before(done => {
         function setupKafka() {
-            return new Promise((resolve, reject)=> {
+            return new Promise((resolve, reject) => {
                 let {ZOOKEEPER_SERVICE_HOST = "127.0.0.1", ZOOKEEPER_SERVICE_PORT = "2181"} = process.env;
                 client = new kafka.Client(
                     `${ZOOKEEPER_SERVICE_HOST}:${ZOOKEEPER_SERVICE_PORT}`,
                     "test-consumer-client");
                 producer = new kafka.Producer(client);
-                producer.on('ready', ()=> {
-                    producer.createTopics(["data-arrive", "data-source-added"], true, (err, data)=> {
+                producer.on('ready', () => {
+                    producer.createTopics(["data-arrive", "data-source-added"], true, (err, data) => {
                         if (err) {
                             reject(err)
                         }
-                        client.refreshMetadata(["data-arrive", "data-source-added"], (err)=> {
+                        client.refreshMetadata(["data-arrive", "data-source-added"], (err) => {
                             if (err) {
                                 reject(err)
                             }
@@ -40,7 +40,8 @@ describe('messageConsumer() use case test', ()=> {
                                 }
                             };
                             let message2 = {
-                                id: "station-rain-other",
+                                id: "NWHSDZ-SW",
+                                dataType: "SW",
                                 zipkinTrace: {
                                     traceID: "aaa",
                                     parentID: "bbb",
@@ -52,10 +53,10 @@ describe('messageConsumer() use case test', ()=> {
                             producer.send([{
                                 topic: "data-arrive",
                                 messages: [JSON.stringify(message1)]
-                            },{
+                            }, {
                                 topic: "data-source-added",
                                 messages: [JSON.stringify(message2)]
-                            }], (err)=> {
+                            }], (err) => {
                                 if (err) {
                                     reject(err)
                                 }
@@ -64,7 +65,7 @@ describe('messageConsumer() use case test', ()=> {
                         });
                     });
                 });
-                producer.on('error', (err)=> {
+                producer.on('error', (err) => {
                     reject(err);
                 });
             });
@@ -72,16 +73,16 @@ describe('messageConsumer() use case test', ()=> {
         function* setup() {
             yield setupKafka();
         };
-        co(setup).then(()=> {
+        co(setup).then(() => {
             messageConsumer = new MessageConsumer("test-data-monitoring");
             done();
-        }).catch(err=> {
+        }).catch(err => {
             done(err);
         });
     });
-    describe('#startConsume()', ()=> {
-        context('start consume message', ()=> {
-            it('should call monitorService.monitoringData and monitorService.registerMonitor methods when consumer "data-arrive" "data-source-added" topic', done=> {
+    describe('#startConsume()', () => {
+        context('start consume message', () => {
+            it('should call monitorService.monitoringData and monitorService.registerMonitor methods when consumer "data-arrive" "data-source-added" topic', done => {
                 let currentDoneCount = 0;
 
                 function doneMore(err) {
@@ -96,29 +97,30 @@ describe('messageConsumer() use case test', ()=> {
                     }
                 };
                 let mockMonitorService = {};
-                mockMonitorService.monitoringData = (originalData, traceContext, callback)=> {
+                mockMonitorService.monitoringData = (originalData, traceContext, callback) => {
                     originalData.s.should.eql("station-rain-other");
                     originalData.t.should.eql(1403610513000);
                     originalData.v.should.eql(110);
                     doneMore();
                 };
-                mockMonitorService.registerMonitor = (dataSourceData, traceContext, callback)=> {
-                    dataSourceData.id.should.eql("station-rain-other")
+                mockMonitorService.registerMonitor = (dataSourceData, traceContext, callback) => {
+                    dataSourceData.id.should.eql("NWHSDZ-SW");
+                    dataSourceData.dataType.should.eql("SW");
                     doneMore();
                 };
                 muk(messageConsumer, "_monitorService", mockMonitorService);
                 messageConsumer.startConsume();
             });
-            after(done=> {
+            after(done => {
                 producer.close();
-                client.close(()=> {
+                client.close(() => {
                     done();
                 });
             });
         });
     });
-    after(done=> {
-        messageConsumer.stopConsume(()=> {
+    after(done => {
+        messageConsumer.stopConsume(() => {
             done();
         });
     });

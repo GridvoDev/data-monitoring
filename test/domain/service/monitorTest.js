@@ -16,7 +16,8 @@ describe('Monitor use case test', ()=> {
         context('monitoring data', ()=> {
             it('return false if data source no matching', ()=> {
                 let monitor = monitorService.initMonitor({
-                    id: "station-rain-other"
+                    id: "station-rain-other",
+                    dataType:"YL"
                 });
                 let dataPoint = new DataPoint({
                     dataSource: "station-water-other",
@@ -28,7 +29,8 @@ describe('Monitor use case test', ()=> {
             });
             it('return true but no happen if no rule event matching', ()=> {
                 let monitor = monitorService.initMonitor({
-                    id: "station-rain-other"
+                    id: "station-rain-other",
+                    dataType:"YL"
                 });
                 let dataPoint = new DataPoint({
                     dataSource: "station-rain-other",
@@ -40,7 +42,8 @@ describe('Monitor use case test', ()=> {
             });
             it('return true ,update monitoringItems and emit event if rule event matching', done=> {
                 let monitor = monitorService.initMonitor({
-                    id: "station-rain-other"
+                    id: "station-rain-other",
+                    dataType:"YL"
                 });
                 let timestamp = (new Date()).getTime();
                 let dataPoint = new DataPoint({

@@ -14,28 +14,31 @@ describe('MonitorService use case test', ()=> {
         context('init monitor', ()=> {
             it('init unknow datatype is return null', ()=> {
                 let dataSourceData = {
-                    id: "station-unknow-other"
+                    id: "station-unknow-other",
+                    dataType:"UNKNOW"
                 };
                 let monitor = service.initMonitor(dataSourceData);
                 _.isNull(monitor).should.equal(true);
             });
             it('init rain datatype monitor ok', ()=> {
                 let dataSourceData = {
-                    id: "station-rain-other"
+                    id: "station-rain-other",
+                    dataType:"YL"
                 };
                 let monitor = service.initMonitor(dataSourceData);
                 monitor.monitorID.should.equal("station-rain-other");
-                monitor.dataType.should.equal(constant.DATATYPE.RAIN);
+                monitor.dataType.should.equal(constant.DATATYPE.YL);
                 should.exist(monitor.monitoringItems.lastPublishTimestamp);
                 should.exist(monitor.rules[constant.RULE.REAL_TIME_PUBLISH_RULE_ID]);
             });
             it('init waterlevel datatype monitor ok', ()=> {
                 let dataSourceData = {
-                    id: "station-waterlevel-shangqian"
+                    id: "station-waterlevel-shangqian",
+                    dataType:"SW"
                 };
                 let monitor = service.initMonitor(dataSourceData);
                 monitor.monitorID.should.equal("station-waterlevel-shangqian");
-                monitor.dataType.should.equal(constant.DATATYPE.WATERLEVEL);
+                monitor.dataType.should.equal(constant.DATATYPE.SW);
                 should.exist(monitor.monitoringItems.lastPublishTimestamp);
                 should.exist(monitor.rules[constant.RULE.REAL_TIME_PUBLISH_RULE_ID]);
             });
@@ -45,7 +48,7 @@ describe('MonitorService use case test', ()=> {
                 it('load monitor ok', ()=> {
                     let monitorData = {
                         monitorID: "station-rain-other",
-                        dataType: 'rain',
+                        dataType: 'YL',
                         rules: {
                             realTimePublish: {
                                 id: 'realTimePublish',
@@ -60,7 +63,7 @@ describe('MonitorService use case test', ()=> {
                     };
                     let monitor = service.loadMonitor(monitorData);
                     monitor.monitorID.should.equal("station-rain-other");
-                    monitor.dataType.should.equal("rain");
+                    monitor.dataType.should.equal("YL");
                     monitor.monitoringItems.lastPublishTimestamp.should.equal(1);
                     should.exist(monitor.rules.realTimePublish);
                     should.exist(monitor.rules.realTimePublish.eventMatching);
