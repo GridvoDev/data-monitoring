@@ -33,6 +33,9 @@ describe('mongoDBMonitorRepository use case test', () => {
             it('should return null if no this monitor', done => {
                 let monitorID = "noMonitorID";
                 Repository.getMonitorByID(monitorID, {}, (err, monitor) => {
+                    if (err) {
+                        done(err);
+                    }
                     _.isNull(monitor).should.be.eql(true);
                     done();
                 });
@@ -40,7 +43,34 @@ describe('mongoDBMonitorRepository use case test', () => {
             it('should return monitor', done => {
                 let monitorID = "station-rain-other";
                 Repository.getMonitorByID(monitorID, {}, (err, monitor) => {
+                    if (err) {
+                        done(err);
+                    }
                     monitor.monitorID.should.be.eql("station-rain-other");
+                    done();
+                });
+            });
+        });
+    });
+    describe('#delMonitorByID(monitorID, traceContext, cb)', () => {
+        context('delete a monitor for id', () => {
+            it('should return false if no this monitor', done => {
+                let monitorID = "no-monitor";
+                Repository.delMonitorByID(monitorID, {}, (err, isSuccess) => {
+                    if (err) {
+                        done(err);
+                    }
+                    isSuccess.should.be.eql(false);
+                    done();
+                });
+            });
+            it('should return true', done => {
+                let monitorID = "station-rain-other";
+                Repository.delMonitorByID(monitorID, {}, (err, isSuccess) => {
+                    if (err) {
+                        done(err);
+                    }
+                    isSuccess.should.be.eql(true);
                     done();
                 });
             });

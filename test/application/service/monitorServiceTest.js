@@ -5,16 +5,16 @@ const muk = require('muk');
 const MonitorService = require('../../../lib/application/service/monitorService');
 const {createMonitorService} = require('../../../lib/domain');
 
-describe('MonitorService use case test', ()=> {
+describe('MonitorService use case test', () => {
     let service;
-    before(()=> {
+    before(() => {
         service = new MonitorService();
     });
-    describe('#registerMonitor(dataSourceData, traceContext, callback)', ()=> {
-        context('register data source', ()=> {
-            it('if data source data no "id station lessee",is fail', done=> {
-                let dataSourceData = {};
-                service.registerMonitor(dataSourceData, {}, (err, isSuccess)=> {
+    describe('#registerMonitor(monitorData, traceContext, callback)', () => {
+        context('register data source', () => {
+            it('if data source data no "id station lessee",is fail', done => {
+                let monitorData = {};
+                service.registerMonitor(monitorData, {}, (err, isSuccess) => {
                     if (err) {
                         done(err);
                     }
@@ -22,16 +22,16 @@ describe('MonitorService use case test', ()=> {
                     done();
                 });
             });
-            it('if monitor already existed,is fail', done=> {
+            it('if monitor already existed,is fail', done => {
                 let mockMonitorRepository = {};
-                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback)=> {
+                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback) => {
                     callback(null, {});
                 };
                 muk(service, "_monitorRepository", mockMonitorRepository);
-                let dataSourceData = {
+                let monitorData = {
                     id: "station-rain-other"
                 };
-                service.registerMonitor(dataSourceData, {}, (err, isSuccess)=> {
+                service.registerMonitor(monitorData, {}, (err, isSuccess) => {
                     if (err) {
                         done(err);
                     }
@@ -39,19 +39,19 @@ describe('MonitorService use case test', ()=> {
                     done();
                 });
             });
-            it('is success', done=> {
+            it('is success', done => {
                 let mockMonitorRepository = {};
-                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback)=> {
+                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback) => {
                     callback(null, null);
                 };
-                mockMonitorRepository.save = (monitor, traceContext, callback)=> {
+                mockMonitorRepository.save = (monitor, traceContext, callback) => {
                     callback(null, true);
                 };
                 muk(service, "_monitorRepository", mockMonitorRepository);
-                let dataSourceData = {
+                let monitorData = {
                     id: "station-rain-other"
                 };
-                service.registerMonitor(dataSourceData, {}, (err, isSuccess)=> {
+                service.registerMonitor(monitorData, {}, (err, isSuccess) => {
                     if (err) {
                         done(err);
                     }
@@ -61,11 +61,11 @@ describe('MonitorService use case test', ()=> {
             });
         });
     });
-    describe('#monitoringData(originalData, traceContext, callback)', ()=> {
-        context('monitoring original data', ()=> {
-            it('if original data no "s t v",is fail', done=> {
+    describe('#monitoringData(originalData, traceContext, callback)', () => {
+        context('monitoring original data', () => {
+            it('if original data no "s t v",is fail', done => {
                 let originalData = {};
-                service.monitoringData(originalData, {}, (err, isSuccess)=> {
+                service.monitoringData(originalData, {}, (err, isSuccess) => {
                     if (err) {
                         done(err);
                     }
@@ -73,9 +73,9 @@ describe('MonitorService use case test', ()=> {
                     done();
                 });
             });
-            it('if no this monitor,is fail', done=> {
+            it('if no this monitor,is fail', done => {
                 let mockMonitorRepository = {};
-                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback)=> {
+                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback) => {
                     callback(null, null);
                 };
                 muk(service, "_monitorRepository", mockMonitorRepository);
@@ -83,7 +83,7 @@ describe('MonitorService use case test', ()=> {
                 originalData.s = "no-data-source";
                 originalData.t = (new Date()).getTime();
                 originalData.v = 1;
-                service.monitoringData(originalData, {}, (err, isSuccess)=> {
+                service.monitoringData(originalData, {}, (err, isSuccess) => {
                     if (err) {
                         done(err);
                     }
@@ -91,7 +91,7 @@ describe('MonitorService use case test', ()=> {
                     done();
                 });
             });
-            it('is success', done=> {
+            it('is success', done => {
                 let currentDoneCount = 0;
 
                 function doneMore(err) {
@@ -106,7 +106,7 @@ describe('MonitorService use case test', ()=> {
                     }
                 };
                 let mockMonitorRepository = {};
-                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback)=> {
+                mockMonitorRepository.getMonitorByID = (monitorID, traceContext, callback) => {
                     let monitor = createMonitorService().loadMonitor({
                         monitorID: "station-rain-other",
                         dataType: 'rain',
@@ -124,13 +124,13 @@ describe('MonitorService use case test', ()=> {
                     });
                     callback(null, monitor);
                 };
-                mockMonitorRepository.save = (monitor, traceContext, callback)=> {
+                mockMonitorRepository.save = (monitor, traceContext, callback) => {
                     callback(null, true);
                 };
                 muk(service, "_monitorRepository", mockMonitorRepository);
                 let timestamp = (new Date()).getTime();
                 let mockMessageProducer = {};
-                mockMessageProducer.produceDataPublishTopicMessage = (message, traceContext, callback)=> {
+                mockMessageProducer.produceDataPublishTopicMessage = (message, traceContext, callback) => {
                     message.dataSource.should.equal("station-rain-other");
                     message.timestamp.should.equal(timestamp);
                     message.value.should.equal(1);
@@ -142,7 +142,7 @@ describe('MonitorService use case test', ()=> {
                     t: timestamp,
                     v: 1
                 };
-                service.monitoringData(originalData, {}, (err, isSuccess)=> {
+                service.monitoringData(originalData, {}, (err, isSuccess) => {
                     if (err) {
                         doneMore(err);
                     }
@@ -152,7 +152,39 @@ describe('MonitorService use case test', ()=> {
             });
         });
     });
-    after(()=> {
+    describe('#removeMonitor(monitorID, traceContext, callback)', () => {
+        context('remove monitore', () => {
+            it('if no monitor return false', done => {
+                let mockMonitorRepository = {};
+                mockMonitorRepository.delMonitorByID = (monitorID, traceContext, callback) => {
+                    callback(null, false);
+                };
+                muk(service, "_monitorRepository", mockMonitorRepository);
+                service.removeMonitor("no-monitor", {}, (err, isSuccess) => {
+                    if (err) {
+                        done(err);
+                    }
+                    isSuccess.should.be.eql(false);
+                    done();
+                });
+            });
+            it('is return true if all ok', done => {
+                let mockMonitorRepository = {};
+                mockMonitorRepository.delMonitorByID = (monitorID, traceContext, callback) => {
+                    callback(null, true);
+                };
+                muk(service, "_monitorRepository", mockMonitorRepository);
+                service.removeMonitor("data-source-id", {}, (err, isSuccess) => {
+                    if (err) {
+                        done(err);
+                    }
+                    isSuccess.should.be.eql(true);
+                    done();
+                });
+            });
+        });
+    });
+    after(() => {
         muk.restore();
     });
 });

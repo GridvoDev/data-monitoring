@@ -10,6 +10,7 @@ let initProducer = new Producer(client);
 initProducer.on('ready', function () {
     initProducer.createTopics(["data-arrive",
         "data-source-added",
+        "data-source-deleted",
         "zipkin"], true, (err)=> {
         if (err) {
             logger.error(err.message);
@@ -17,6 +18,7 @@ initProducer.on('ready', function () {
         }
         client.refreshMetadata(["data-arrive",
             "data-source-added",
+            "data-source-deleted",
             "zipkin"], ()=> {
             initProducer.close(()=> {
                 logger.info("init kafka topics success");

@@ -19,11 +19,15 @@ describe('messageConsumer() use case test', () => {
                     "test-consumer-client");
                 producer = new kafka.Producer(client);
                 producer.on('ready', () => {
-                    producer.createTopics(["data-arrive", "data-source-added"], true, (err, data) => {
+                    producer.createTopics(["data-arrive",
+                        "data-source-added",
+                        "data-source-deleted"], true, (err, data) => {
                         if (err) {
                             reject(err)
                         }
-                        client.refreshMetadata(["data-arrive", "data-source-added"], (err) => {
+                        client.refreshMetadata(["data-arrive",
+                            "data-source-added",
+                            "data-source-deleted"], (err) => {
                             if (err) {
                                 reject(err)
                             }
@@ -50,12 +54,25 @@ describe('messageConsumer() use case test', () => {
                                     step: 3
                                 }
                             };
+                            let message3 = {
+                                dataSourceID: "NWHSDZ-SW",
+                                zipkinTrace: {
+                                    traceID: "aaa",
+                                    parentID: "bbb",
+                                    spanID: "ccc",
+                                    flags: 1,
+                                    step: 3
+                                }
+                            };
                             producer.send([{
                                 topic: "data-arrive",
                                 messages: [JSON.stringify(message1)]
                             }, {
                                 topic: "data-source-added",
                                 messages: [JSON.stringify(message2)]
+                            }, {
+                                topic: "data-source-deleted",
+                                messages: [JSON.stringify(message3)]
                             }], (err) => {
                                 if (err) {
                                     reject(err)
@@ -82,12 +99,14 @@ describe('messageConsumer() use case test', () => {
     });
     describe('#startConsume()', () => {
         context('start consume message', () => {
-            it('should call monitorService.monitoringData and monitorService.registerMonitor methods when consumer "data-arrive" "data-source-added" topic', done => {
+            it('should call monitorService.monitoringData monitorService.removeMonitor' +
+                'and monitorService.registerMonitor methods ' +
+                'when consumer "data-arrive" "data-source-added" "data-source-deleted" topic', done => {
                 let currentDoneCount = 0;
 
                 function doneMore(err) {
                     currentDoneCount++;
-                    if (currentDoneCount == 2) {
+                    if (currentDoneCount == 3) {
                         if (err) {
                             done(err);
                         }
@@ -106,6 +125,10 @@ describe('messageConsumer() use case test', () => {
                 mockMonitorService.registerMonitor = (dataSourceData, traceContext, callback) => {
                     dataSourceData.id.should.eql("NWHSDZ-SW");
                     dataSourceData.dataType.should.eql("SW");
+                    doneMore();
+                };
+                mockMonitorService.removeMonitor = (monitorID, traceContext, callback) => {
+                    monitorID.should.eql("NWHSDZ-SW");
                     doneMore();
                 };
                 muk(messageConsumer, "_monitorService", mockMonitorService);
